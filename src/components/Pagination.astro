@@ -1,0 +1,236 @@
+---
+interface Props {
+	currentPage: number;
+	totalPages: number;
+}
+
+const { currentPage, totalPages } = Astro.props;
+
+// 页码折叠：始终显示首尾页，当前页前后各 1 页，间隙用省略号
+function getPageItems(current: number, total: number): (number | '...')[] {
+	if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+	const pages = new Set<number>([1, total, current - 1, current, current + 1]);
+	const items: (number | '...')[] = [];
+	let prev = 0;
+	for (const p of [...pages].filter((p) => p >= 1 && p <= total).sort((a, b) => a - b)) {
+		if (p - prev > 1) items.push('...');
+		items.push(p);
+		prev = p;
+	}
+	return items;
+}
+
+const pageItems = getPageItems(currentPage, totalPages);
+const pageUrl = (n: number) => (n === 1 ? '/' : `/page/${n}/`);
+---
+
+<nav class="pagination" aria-label="分页导航">
+	<div class="scroll-area">
+		<a
+			href={currentPage > 1 ? pageUrl(currentPage - 1) : undefined}
+			class:list={['btn', 'prev', { disabled: currentPage <= 1 }]}
+			aria-label="上一页"
+			aria-disabled={currentPage <= 1 ? 'true' : undefined}
+		>
+			←<span class="label">上一页</span>
+		</a>
+
+		<span class="pages">
+			{
+				pageItems.map((item) =>
+					item === '...' ? (
+						<span class="ellipsis" aria-hidden="true">…</span>
+					) : (
+						item === currentPage ? (
+							<span class="page current" aria-current="page">{item}</span>
+						) : (
+							<a href={pageUrl(item)} class="page">{item}</a>
+						)
+					),
+				)
+			}
+		</span>
+
+		<a
+			href={currentPage < totalPages ? pageUrl(currentPage + 1) : undefined}
+			class:list={['btn', 'next', { disabled: currentPage >= totalPages }]}
+			aria-label="下一页"
+			aria-disabled={currentPage >= totalPages ? 'true' : undefined}
+		>
+			<span class="label">下一页</span>→
+		</a>
+	</div>
+</nav>
+
+<style>
+	.pagination {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.8em;
+		margin: 2.5em 0;
+		flex-wrap: nowrap;
+		user-select: none;
+	}
+
+	/* 页码区：空间不足时横向滚动，不换行 */
+	.scroll-area {
+		display: flex;
+		align-items: center;
+		gap: 0.6em;
+		overflow-x: auto;
+		max-width: 100%;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
+	}
+	.scroll-area::-webkit-scrollbar {
+		display: none;
+	}
+
+	/* 页码按钮通用 */
+	.page,
+	.ellipsis {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 2.4em;
+		height: 2.4em;
+		padding: 0 0.5em;
+		font-size: 0.95em;
+		line-height: 1;
+		border-radius: 12px;
+		text-decoration: none;
+		color: rgb(var(--gray-dark));
+		background: #fff;
+		border: 1px solid rgb(var(--gray-light));
+		transition: all 0.18s ease;
+		flex-shrink: 0;
+	}
+
+	.page:hover {
+		color: var(--accent);
+		border-color: var(--accent);
+		transform: translateY(-2px);
+		box-shadow: 0 4px 10px rgba(var(--accent), 18%);
+	}
+
+	.page.current {
+		background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 75%, #000));
+		color: #fff;
+		border-color: transparent;
+		font-weight: 600;
+		box-shadow: 0 4px 12px rgba(var(--accent), 30%);
+	}
+
+	.ellipsis {
+		border: none;
+		background: transparent;
+		color: rgb(var(--gray));
+		min-width: 1.2em;
+	}
+
+	/* 上一页/下一页按钮 */
+	.btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4em;
+		height: 2.4em;
+		padding: 0 1em;
+		font-size: 0.95em;
+		border-radius: 12px;
+		text-decoration: none;
+		color: rgb(var(--gray-dark));
+		background: #fff;
+		border: 1px solid rgb(var(--gray-light));
+		transition: all 0.18s ease;
+		flex-shrink: 0;
+	}
+
+	.btn:hover:not(.disabled) {
+		color: var(--accent);
+		border-color: var(--accent);
+		transform: translateY(-2px);
+		box-shadow: 0 4px 10px rgba(var(--accent), 18%);
+	}
+
+	.btn.prev:hover:not(.disabled) {
+		transform: translateX(-2px) translateY(-2px);
+	}
+
+	.btn.next:hover:not(.disabled) {
+		transform: translateX(2px) translateY(-2px);
+	}
+
+	.btn.disabled {
+		opacity: 0.4;
+		pointer-events: none;
+	}
+
+	/* 跳页输入框 */
+	.jump {
+		display: flex;
+		align-items: center;
+		gap: 0.4em;
+		flex-shrink: 0;
+	}
+	.jump-label {
+		font-size: 0.9em;
+		color: rgb(var(--gray));
+	}
+	.jump input {
+		width: 3.6em;
+		height: 2.4em;
+		text-align: center;
+		font-size: 0.95em;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 12px;
+		background: #fff;
+		color: rgb(var(--gray-dark));
+		outline: none;
+		transition: all 0.18s ease;
+		-moz-appearance: textfield;
+		appearance: textfield;
+	}
+	.jump input::-webkit-outer-spin-button,
+	.jump input::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+	.jump input:focus {
+		border-color: var(--accent);
+		box-shadow: 0 0 0 3px rgba(var(--accent), 15%);
+	}
+	.jump button {
+		height: 2.4em;
+		padding: 0 0.9em;
+		font-size: 0.9em;
+		font-weight: 600;
+		border: none;
+		border-radius: 12px;
+		background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 75%, #000));
+		color: #fff;
+		cursor: pointer;
+		transition: all 0.18s ease;
+	}
+	.jump button:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 4px 10px rgba(var(--accent), 30%);
+	}
+
+	/* 移动端 */
+	@media (max-width: 720px) {
+		.btn .label {
+			display: none;
+		}
+		.btn {
+			padding: 0 0.8em;
+		}
+		.page {
+			min-width: 2.1em;
+			height: 2.1em;
+		}
+		.scroll-area {
+			gap: 0.4em;
+		}
+	}
+</style>

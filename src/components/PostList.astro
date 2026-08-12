@@ -1,0 +1,68 @@
+---
+import FormattedDate from './FormattedDate.astro';
+import type { CollectionEntry } from 'astro:content';
+
+type Props = {
+	posts: CollectionEntry<'blog'>[];
+};
+
+const { posts } = Astro.props;
+---
+
+<div class="masonry">
+	{
+		posts.map((post) => (
+			<a href={`/blog/${post.id}/`} class="card">
+				{post.data.heroImage && (
+					<img width={720} height={360} src={post.data.heroImage} alt="" loading="lazy" />
+				)}
+				<h4 class="title">{post.data.title}</h4>
+				<p class="date">
+					<FormattedDate date={post.data.pubDate} />
+				</p>
+			</a>
+		))
+	}
+</div>
+
+<style>
+	.masonry {
+		columns: 2;
+		column-gap: 2rem;
+	}
+	.card {
+		display: inline-block;
+		width: 100%;
+		margin: 0 0 2rem;
+		break-inside: avoid;
+		text-decoration: none;
+		transition: 0.2s ease;
+	}
+	.card img {
+		width: 100%;
+		border-radius: 12px;
+		margin-bottom: 0.5rem;
+	}
+	.title {
+		margin: 0;
+		color: rgb(var(--black));
+		line-height: 1;
+	}
+	.date {
+		margin: 0.25em 0 0;
+		color: rgb(var(--gray));
+	}
+	.card:hover h4,
+	.card:hover .date {
+		color: rgb(var(--accent));
+	}
+	.card:hover img {
+		box-shadow: var(--box-shadow);
+	}
+	@media (max-width: 720px) {
+		.masonry {
+			columns: 1;
+			column-gap: 0;
+		}
+	}
+</style>

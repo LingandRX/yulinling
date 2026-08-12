@@ -1,0 +1,53 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import PostList from '../../components/PostList.astro';
+import Pagination from '../../components/Pagination.astro';
+import { SITE_TITLE, SITE_DESCRIPTION, POSTS_PER_PAGE } from '../../consts';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+	const allPosts = (await getCollection('blog')).sort(
+		(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+	);
+	const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE);
+	// 第 1 页是首页（/），分页从第 2 页开始
+	return Array.from({ length: totalPages - 1 }, (_, i) => {
+		const page = i + 2;
+		const start = (page - 1) * POSTS_PER_PAGE;
+		return {
+			params: { page: String(page) },
+			props: { page, posts: allPosts.slice(start, start + POSTS_PER_PAGE), totalPages },
+		};
+	});
+}
+
+interface Props {
+	page: number;
+	posts: Awaited<ReturnType<typeof getCollection<'blog'>>>;
+	totalPages: number;
+}
+
+const { page: currentPage, posts, totalPages } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<BaseHead title={`${SITE_TITLE} - 第 ${currentPage} 页`} description={SITE_DESCRIPTION} />
+		<style>
+			main {
+				width: 960px;
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<PostList posts={posts} />
+			<Pagination currentPage={currentPage} totalPages={totalPages} />
+		</main>
+		<Footer />
+	</body>
+</html>
