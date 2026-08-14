@@ -62,20 +62,20 @@ jobs:
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
         working-directory: ${{ env.BUILD_PATH }}
       - name: Build with Astro
+        # 站点部署在根路径（自定义域名 yulinling.site），固定使用 --base "/"。
+        # site 不再用 configure-pages 的 origin（会得到 http://），
+        # 改由 astro.config.mjs 提供 https://yulinling.site
         run: |
-          ${{ steps.detect-package-manager.outputs.runner }} astro build \
-            --site "${{ steps.pages.outputs.origin }}" \
-            --base "${{ steps.pages.outputs.base_path }}"
+          ${{ steps.detect-package-manager.outputs.runner }} astro build --base "/"
         working-directory: ${{ env.BUILD_PATH }}
       - name: Verify static output
         # Cloudflare adapter 保持 server 模式：一旦页面用到服务端特性就不会被 prerender，
         # 这里校验 index.html 存在，把「静默 404」变成显式 CI 失败
-        run: test -f "${{ env.BUILD_PATH }}/dist${{ steps.pages.outputs.base_path }}/index.html"
+        run: test -f "${{ env.BUILD_PATH }}/dist/index.html"
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Cloudflare adapter 会把产物输出到 base_path 子目录
-          path: ${{ env.BUILD_PATH }}/dist${{ steps.pages.outputs.base_path }}
+          path: ${{ env.BUILD_PATH }}/dist
 
   deploy:
     environment:
