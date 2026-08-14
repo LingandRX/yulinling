@@ -11,6 +11,7 @@ export default function remarkBasePrefix(base) {
 	/** @param {import('mdast').Root} tree */
 	return (tree) => {
 		if (!base || base === "/") return;
+		base = base.replace(/\/?$/, "/");
 		visit(tree, ["image", "link"], (node) => {
 			const url = /** @type {{url?: unknown}} */ (node).url;
 			if (
