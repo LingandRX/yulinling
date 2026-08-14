@@ -8,7 +8,7 @@ export const SITE_DESCRIPTION = "雨霖铃的个人网站，记录生活与学�
 export const POSTS_PER_PAGE = 50;
 
 // 备案信息（来自 Halo 站点配置）
-export const SITE_SHOW_BEIAN = false; // 暂时隐藏，改为 true 可恢复显示
+export const SITE_SHOW_BEIAN = true; // 备案显示开关
 export const SITE_ICP = "赣ICP备2024037374号-2";
 export const SITE_ICP_LINK = "https://beian.miit.gov.cn/";
 export const SITE_GONGAN = "粤公网安备44030002013166号";
