@@ -1,6 +1,7 @@
 ---
 import FormattedDate from './FormattedDate.astro';
 import type { CollectionEntry } from 'astro:content';
+import { withBase } from '../consts';
 
 type Props = {
 	posts: CollectionEntry<'blog'>[];
@@ -12,9 +13,9 @@ const { posts } = Astro.props;
 <div class="masonry">
 	{
 		posts.map((post) => (
-			<a href={`/blog/${post.id}/`} class="card">
+			<a href={withBase(`/blog/${post.id}/`)} class="card">
 				{post.data.heroImage && (
-					<img width={720} height={360} src={post.data.heroImage} alt="" loading="lazy" />
+					<img width={720} height={360} src={withBase(post.data.heroImage)} alt="" loading="lazy" />
 				)}
 				<h4 class="title">{post.data.title}</h4>
 				<p class="date">

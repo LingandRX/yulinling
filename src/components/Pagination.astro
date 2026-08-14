@@ -1,4 +1,6 @@
 ---
+import { withBase } from '../consts';
+
 interface Props {
 	currentPage: number;
 	totalPages: number;
@@ -21,7 +23,7 @@ function getPageItems(current: number, total: number): (number | '...')[] {
 }
 
 const pageItems = getPageItems(currentPage, totalPages);
-const pageUrl = (n: number) => (n === 1 ? '/' : `/page/${n}/`);
+const pageUrl = (n: number) => withBase(n === 1 ? '/' : `/page/${n}/`);
 ---
 
 <nav class="pagination" aria-label="分页导航">

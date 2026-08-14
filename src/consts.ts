@@ -4,6 +4,12 @@
 export const SITE_TITLE = "雨霖铃";
 export const SITE_DESCRIPTION = "雨霖铃的个人网站，记录生活与学习。";
 
+// 站点根路径（GH Pages 子路径部署时自动带上前缀）
+export const withBase = (path: string): string => {
+	if (!path.startsWith("/") || path.startsWith("//")) return path;
+	return `${import.meta.env.BASE_URL}${path.slice(1)}`;
+};
+
 // 文章列表分页：每页最多显示条数
 export const POSTS_PER_PAGE = 50;
 
