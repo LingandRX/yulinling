@@ -30,7 +30,19 @@ notionId: 3bd971f3-e8db-81b5-b779-e2bd0dfbece9
 ## 常用组合（可选）
 
 - 新增/修改后提交流程：
+  1. `git status`
+
+  1. `git add .`
+
+  1. `git commit -m "feat: ..."`
+
+  1. `git push`
 
 - 同步远程最新：
+  1. `git pull`
+
+  1. 解决冲突（如有）
+
+  1. `git push`（如需要推送本地提交）
 
 ---
