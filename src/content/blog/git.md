@@ -16,7 +16,7 @@ notionId: 3bd971f3-e8db-81b5-b779-e2bd0dfbece9
 | 查看状态 | `git status` | 查看工作区/暂存区状态 |
 | 查看差异 | `git diff` | 工作区 vs 暂存区差异 |
 | 提交 | `git commit -m "msg"` | 生成一次提交 |
-| 回退版本 | `git reset [--soft|--mixed|--hard] &lt;commit&gt;` | 回退到指定提交 |
+| 回退版本 | `git reset [--soft|--mixed|--hard] <commit>` | 回退到指定提交 |
 | 删除文件 | `git rm <file>` | 从版本库删除（并删除工作区文件） |
 | 移动/重命名 | `git mv <from> <to>` | 移动或重命名文件 |
 | 切换分支/文件 | `git checkout <branch>` | 切换分支（或恢复文件） |
