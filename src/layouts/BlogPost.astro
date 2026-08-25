@@ -4,12 +4,10 @@ import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
-import { withBase } from '../consts';
 
 type Props = CollectionEntry<'blog'>['data'];
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
-const heroImageSrc = heroImage ? withBase(heroImage) : undefined;
+const { title, description, pubDate, updatedDate } = Astro.props;
 ---
 
 <html lang="zh-CN">
@@ -20,15 +18,6 @@ const heroImageSrc = heroImage ? withBase(heroImage) : undefined;
 				width: calc(100% - 2em);
 				max-width: 100%;
 				margin: 0;
-			}
-			.hero-image {
-				width: 100%;
-			}
-			.hero-image img {
-				display: block;
-				margin: 0 auto;
-				border-radius: 12px;
-				box-shadow: var(--box-shadow);
 			}
 			.prose {
 				width: 720px;
@@ -60,9 +49,6 @@ const heroImageSrc = heroImage ? withBase(heroImage) : undefined;
 		<Header />
 		<main>
 			<article>
-				<div class="hero-image">
-					{heroImageSrc && <img width={1020} height={510} src={heroImageSrc} alt="" />}
-				</div>
 				<div class="prose">
 					<div class="title">
 						<div class="date">
