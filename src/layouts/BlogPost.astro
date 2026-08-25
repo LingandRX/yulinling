@@ -72,5 +72,62 @@ const { title, description, pubDate, updatedDate } = Astro.props;
 			</article>
 		</main>
 		<Footer />
+		<script>
+			// 给每块代码块添加右上角「复制」按钮
+			function addCopyButtons() {
+				document.querySelectorAll('.prose pre').forEach((pre) => {
+					// 已包过容器的跳过，避免重复注入
+					if (pre.parentElement?.classList.contains('code-block')) return;
+
+					const wrapper = document.createElement('div');
+					wrapper.className = 'code-block';
+					pre.parentNode?.insertBefore(wrapper, pre);
+					wrapper.appendChild(pre);
+
+					const btn = document.createElement('button');
+					btn.type = 'button';
+					btn.className = 'code-copy';
+					btn.textContent = '复制';
+					btn.setAttribute('aria-label', '复制代码');
+					wrapper.appendChild(btn);
+
+					btn.addEventListener('click', async () => {
+						const text = pre.textContent.replace(/\n$/, '');
+						const ok = await copyText(text);
+						btn.textContent = ok ? '已复制 ✓' : '复制失败';
+						setTimeout(() => {
+							btn.textContent = '复制';
+						}, 1500);
+					});
+				});
+			}
+
+			async function copyText(text) {
+				if (navigator.clipboard && window.isSecureContext) {
+					try {
+						await navigator.clipboard.writeText(text);
+						return true;
+					} catch {
+						/* 降级到下方方案 */
+					}
+				}
+				try {
+					const ta = document.createElement('textarea');
+					ta.value = text;
+					ta.setAttribute('readonly', '');
+					ta.style.position = 'fixed';
+					ta.style.opacity = '0';
+					document.body.appendChild(ta);
+					ta.select();
+					const ok = document.execCommand('copy');
+					ta.remove();
+					return ok;
+				} catch {
+					return false;
+				}
+			}
+
+			addCopyButtons();
+		</script>
 	</body>
 </html>
