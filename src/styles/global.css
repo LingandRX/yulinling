@@ -213,6 +213,15 @@ p {
 .prose img {
 	margin: 0.5em 0 1.5em;
 }
+/* 图片灯箱：markdown 图片被构建时插件包成 <a data-pswp-*>，去掉链接下划线并提示可点击 */
+.prose a[data-pswp-width],
+.prose a[data-pswp-width]:hover {
+	border-bottom: none;
+	display: inline-block;
+}
+.prose a[data-pswp-width] img {
+	cursor: zoom-in;
+}
 /* 代码块复制按钮 */
 .code-block {
 	position: relative;

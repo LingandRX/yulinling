@@ -4,6 +4,7 @@ import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
+import 'photoswipe/style.css';
 
 type Heading = { depth: number; slug: string; text: string };
 type Props = CollectionEntry<'blog'>['data'] & { headings?: Heading[] };
@@ -164,6 +165,21 @@ const { title, description, pubDate, updatedDate, headings = [] } = Astro.props;
 		</main>
 		<Footer />
 		<script>
+			import PhotoSwipeLightbox from 'photoswipe/lightbox';
+			import PhotoSwipe from 'photoswipe';
+
+			// 图片灯箱：点正文图片全屏预览，可翻页查看本篇文章全部图片
+			function setupLightbox() {
+				const lightbox = new PhotoSwipeLightbox({
+					gallery: '.prose',
+					children: 'a[data-pswp-width]',
+					pswpModule: PhotoSwipe,
+					bgOpacity: 0.95,
+					showHideAnimationType: 'zoom',
+				});
+				lightbox.init();
+			}
+
 			// 给每块代码块添加右上角「复制」按钮
 			function addCopyButtons() {
 				document.querySelectorAll('.prose pre').forEach((pre) => {
@@ -254,6 +270,7 @@ const { title, description, pubDate, updatedDate, headings = [] } = Astro.props;
 			}
 			addCopyButtons();
 			setupTocSpy();
+			setupLightbox();
 		</script>
 	</body>
 </html>
