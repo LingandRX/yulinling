@@ -17,6 +17,8 @@
 		"@astrojs/rss": "4.0.14",
 		"@astrojs/sitemap": "3.6.1",
 		"astro": "5.16.9",
+		"image-size": "^2.0.2",
+		"photoswipe": "^5.4.4",
 		"pinyin-pro": "^3.29.1",
 		"typescript": "5.9.3"
 	},
