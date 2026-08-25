@@ -7,6 +7,8 @@ heroImage: "/uploads/IMG_20260125_163028.jpeg"
 notionId: 3bd971f3-e8db-81eb-98f5-f0e1bc10010f
 ---
 
-![](/uploads/IMG_20260125_163028.jpeg)
+![IMG_20260125_163028.jpeg](/uploads/IMG_20260125_163028.jpeg)
 
-![](/uploads/IMG_20260125_164905.jpg)
+
+![IMG_20260125_164905.jpg](/uploads/IMG_20260125_164905.jpg)
+
