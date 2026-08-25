@@ -110,14 +110,14 @@ const pageUrl = (n: number) => withBase(n === 1 ? '/' : `/page/${n}/`);
 	}
 
 	.page:hover {
-		color: var(--accent);
-		border-color: var(--accent);
+		color: rgb(var(--accent));
+		border-color: rgb(var(--accent));
 		transform: translateY(-2px);
 		box-shadow: 0 4px 10px rgba(var(--accent), 18%);
 	}
 
 	.page.current {
-		background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 75%, #000));
+		background: linear-gradient(135deg, rgb(var(--accent)), color-mix(in srgb, rgb(var(--accent)) 75%, #000));
 		color: #fff;
 		border-color: transparent;
 		font-weight: 600;
@@ -149,8 +149,8 @@ const pageUrl = (n: number) => withBase(n === 1 ? '/' : `/page/${n}/`);
 	}
 
 	.btn:hover:not(.disabled) {
-		color: var(--accent);
-		border-color: var(--accent);
+		color: rgb(var(--accent));
+		border-color: rgb(var(--accent));
 		transform: translateY(-2px);
 		box-shadow: 0 4px 10px rgba(var(--accent), 18%);
 	}
@@ -199,7 +199,7 @@ const pageUrl = (n: number) => withBase(n === 1 ? '/' : `/page/${n}/`);
 		margin: 0;
 	}
 	.jump input:focus {
-		border-color: var(--accent);
+		border-color: rgb(var(--accent));
 		box-shadow: 0 0 0 3px rgba(var(--accent), 15%);
 	}
 	.jump button {
@@ -209,7 +209,7 @@ const pageUrl = (n: number) => withBase(n === 1 ? '/' : `/page/${n}/`);
 		font-weight: 600;
 		border: none;
 		border-radius: 12px;
-		background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 75%, #000));
+		background: linear-gradient(135deg, rgb(var(--accent)), color-mix(in srgb, rgb(var(--accent)) 75%, #000));
 		color: #fff;
 		cursor: pointer;
 		transition: all 0.18s ease;
