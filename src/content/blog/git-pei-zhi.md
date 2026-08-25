@@ -8,18 +8,6 @@ notionId: 3bd971f3-e8db-818f-b75e-e8b48877a2d4
 
 > 本文整理 Git 基础配置 + SSH Key 配置（GitHub 与免密登录）。按顺序执行即可。
 
-
-## 目录
-
-1. [配置用户信息](#配置用户信息)
-2. [生成 SSH Key（id_rsa / id_rsa.pub）](#生成-ssh-keyidrsa--idrsapub)
-3. [配置 GitHub SSH Key](#配置-github-ssh-key)
-4. [测试 GitHub 连通性](#测试-github-连通性)
-5. [配置服务器免密登录（authorized_keys）](#配置服务器免密登录authorized_keys)
-
----
-
-
 ## 配置用户信息
 
 
