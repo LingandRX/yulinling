@@ -5,9 +5,10 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 
-type Props = CollectionEntry<'blog'>['data'];
+type Heading = { depth: number; slug: string; text: string };
+type Props = CollectionEntry<'blog'>['data'] & { headings?: Heading[] };
 
-const { title, description, pubDate, updatedDate } = Astro.props;
+const { title, description, pubDate, updatedDate, headings = [] } = Astro.props;
 ---
 
 <html lang="zh-CN">
@@ -45,6 +46,82 @@ const { title, description, pubDate, updatedDate } = Astro.props;
 			.last-updated-on {
 				font-style: italic;
 			}
+			/* 目录：窄屏顶部卡片，宽屏右侧浮动 */
+			.toc {
+				box-sizing: border-box;
+				margin: 0 0 2.5em;
+				padding: 1.1em 1.4em;
+				border: 1px solid rgb(var(--gray-light));
+				border-radius: 10px;
+				background-color: rgba(var(--gray-light), 25%);
+			}
+			.toc:not([open]) {
+				padding: 0.6em 1.1em;
+			}
+			.toc summary {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				cursor: pointer;
+				font-size: 0.9em;
+				font-weight: 700;
+				color: rgb(var(--gray));
+				list-style: none;
+				user-select: none;
+			}
+			.toc summary::-webkit-details-marker {
+				display: none;
+			}
+			.toc summary::after {
+				content: '▾';
+				transition: transform 0.2s ease;
+			}
+			.toc[open] summary::after {
+				transform: rotate(180deg);
+			}
+			.toc-list {
+				margin: 0;
+				padding: 0;
+				list-style: none;
+			}
+			.toc-list li {
+				margin: 0.25em 0;
+				line-height: 1.5;
+			}
+			.toc-list a {
+				color: rgb(var(--gray-dark));
+				text-decoration: none;
+				border-bottom: none;
+				transition: color 0.2s ease;
+			}
+			.toc-list a:hover,
+			.toc-list a.active {
+				color: rgb(var(--accent));
+			}
+			.toc-list a.active {
+				font-weight: 700;
+			}
+			.toc-list .depth-3 {
+				padding-left: 1.2em;
+				font-size: 0.95em;
+			}
+			@media (min-width: 1200px) {
+				.toc {
+					position: fixed;
+					top: 50%;
+					right: max(1em, calc((100% - 720px) / 2 - 230px));
+					transform: translateY(-50%);
+					width: 200px;
+					max-height: 70vh;
+					overflow-y: auto;
+					margin: 0;
+					background-color: rgba(255, 255, 255, 0.92);
+					box-shadow: 0 2px 8px rgba(var(--gray), 12%);
+				}
+				.toc summary {
+					display: none;
+				}
+			}
 		</style>
 	</head>
 
@@ -67,6 +144,20 @@ const { title, description, pubDate, updatedDate } = Astro.props;
 						</div>
 						<hr />
 					</div>
+					{
+						headings.length > 2 && (
+							<details class="toc" open>
+								<summary>目录</summary>
+								<ol class="toc-list">
+									{headings.map((h) => (
+										<li class:list={[`depth-${h.depth}`]}>
+											<a href={`#${h.slug}`}>{h.text}</a>
+										</li>
+									))}
+								</ol>
+							</details>
+						)
+					}
 					<slot />
 				</div>
 			</article>
@@ -127,7 +218,42 @@ const { title, description, pubDate, updatedDate } = Astro.props;
 				}
 			}
 
+			// 目录滚动高亮：标记当前所在的章节
+			function setupTocSpy() {
+				const links = Array.from(document.querySelectorAll('.toc-list a'));
+				if (links.length === 0) return;
+				const targets = links
+					.map((a) => document.getElementById(a.getAttribute('href').slice(1)))
+					.filter(Boolean);
+
+				const update = () => {
+					const line = window.scrollY + 120;
+					let active = targets[0];
+					for (const t of targets) {
+						if (t.getBoundingClientRect().top + window.scrollY <= line) active = t;
+					}
+					links.forEach((a) => {
+						a.classList.toggle('active', a.getAttribute('href') === `#${active.id}`);
+					});
+				};
+
+				window.addEventListener('scroll', () => requestAnimationFrame(update), { passive: true });
+				update();
+			}
+
+			// 目录展开状态随断点同步：移动端默认收起，桌面端(≥1200px)常开
+			const tocDetails = document.querySelector('.toc');
+			if (tocDetails) {
+				const mq = window.matchMedia('(max-width: 1199px)');
+				const syncToc = () => {
+					if (mq.matches) tocDetails.removeAttribute('open');
+					else tocDetails.setAttribute('open', '');
+				};
+				syncToc();
+				mq.addEventListener('change', syncToc);
+			}
 			addCopyButtons();
+			setupTocSpy();
 		</script>
 	</body>
 </html>
