@@ -11,16 +11,16 @@ export default function remarkBasePrefix(base) {
 	/** @param {import('mdast').Root} tree */
 	return (tree) => {
 		if (!base || base === "/") return;
-		base = base.replace(/\/?$/, "/");
+		const prefix = base.replace(/\/?$/, "/");
 		visit(tree, ["image", "link"], (node) => {
 			const url = /** @type {{url?: unknown}} */ (node).url;
 			if (
 				typeof url === "string" &&
 				url.startsWith("/") &&
 				!url.startsWith("//") &&
-				!url.startsWith(base)
+				!url.startsWith(prefix)
 			) {
-				/** @type {{url: string}} */ (node).url = base + url.replace(/^\//, "");
+				/** @type {{url: string}} */ (node).url = prefix + url.replace(/^\//, "");
 			}
 		});
 	};
