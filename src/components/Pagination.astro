@@ -24,6 +24,7 @@ function getPageItems(current: number, total: number): (number | '...')[] {
 
 const pageItems = getPageItems(currentPage, totalPages);
 const pageUrl = (n: number) => withBase(n === 1 ? '/' : `/page/${n}/`);
+const baseUrl = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 ---
 
 <nav class="pagination" aria-label="分页导航">
@@ -62,7 +63,24 @@ const pageUrl = (n: number) => withBase(n === 1 ? '/' : `/page/${n}/`);
 			<span class="label">下一页</span>→
 		</a>
 	</div>
+
+	<form class="jump" aria-label="跳页">
+		<span class="jump-label">跳至</span>
+		<input type="number" name="page" min="1" max={totalPages} value={currentPage} aria-label="页码" />
+		<button type="submit">GO</button>
+	</form>
 </nav>
+
+<script define:vars={{ baseUrl, currentPage, totalPages }}>
+	const form = document.querySelector('.jump');
+	const input = form?.querySelector('input[type="number"]');
+	form?.addEventListener('submit', (e) => {
+		e.preventDefault();
+		const n = Number(input?.value);
+		if (!Number.isInteger(n) || n < 1 || n > totalPages || n === currentPage) return;
+		window.location.href = n === 1 ? baseUrl : `${baseUrl}page/${n}/`;
+	});
+</script>
 
 <style>
 	.pagination {
