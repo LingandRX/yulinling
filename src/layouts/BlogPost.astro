@@ -101,13 +101,21 @@ const { title, description, pubDate, updatedDate, headings = [] } = Astro.props;
 				color: rgb(var(--accent));
 			}
 			.toc-list a.active {
-				color: rgb(var(--accent));
 				background-color: rgba(var(--accent), 8%);
 				border-radius: 4px;
 			}
 			.toc-list .depth-3 {
 				padding-left: 1em;
 				font-size: 0.85em;
+			}
+			/* 锚点跳转留白：目录点击后标题不要紧贴视口顶端 */
+			.prose h1,
+			.prose h2,
+			.prose h3,
+			.prose h4,
+			.prose h5,
+			.prose h6 {
+				scroll-margin-top: 1.5rem;
 			}
 			@media (min-width: 1200px) {
 				.toc {
@@ -244,11 +252,39 @@ const { title, description, pubDate, updatedDate, headings = [] } = Astro.props;
 					.map((a) => document.getElementById(a.getAttribute('href').slice(1)))
 					.filter(Boolean);
 
+				// 点击目录：立即高亮所点项；若目标在页面末尾滚不到高亮线，
+				// 保持高亮直到它越过视口中线，避免被“滚到底强制末项”的逻辑覆盖
+				let pending = null;
+				for (const a of links) {
+					a.addEventListener('click', () => {
+						pending = a.getAttribute('href').slice(1);
+						links.forEach((x) => x.classList.toggle('active', x === a));
+					});
+				}
+
 				const update = () => {
-					const line = window.scrollY + 120;
+					const sc = window.scrollY;
+					const line = sc + 120;
+					const half = sc + window.innerHeight / 2;
+					const docHeight = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+					const maxScroll = Math.max(0, docHeight - window.innerHeight);
 					let active = targets[0];
 					for (const t of targets) {
-						if (t.getBoundingClientRect().top + window.scrollY <= line) active = t;
+						const top = t.getBoundingClientRect().top + sc;
+						if (top <= line || (top <= half && top > maxScroll + 120)) active = t;
+					}
+					// 兜底：滚到底部时仍未选中最后一个标题，则强制选中它
+					if (sc >= maxScroll - 2) {
+						active = targets[targets.length - 1];
+					}
+					// 点击的目标若仍显示在视口下半部，暂时保持它的高亮
+					if (pending) {
+						const forced = targets.find((t) => t.id === pending);
+						if (forced && forced.getBoundingClientRect().top + sc > half) {
+							active = forced;
+						} else {
+							pending = null; // 目标已越过中线，交还给滚动规则
+						}
 					}
 					links.forEach((a) => {
 						a.classList.toggle('active', a.getAttribute('href') === `#${active.id}`);
