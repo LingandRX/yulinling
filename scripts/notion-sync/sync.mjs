@@ -4,7 +4,7 @@
  *
  * Uses the `notion-to-md` library (souvikinator) for block -> Markdown
  * conversion instead of hand-written rendering. Orchestration (frontmatter,
- * date marker -> pubDate, first paragraph -> description, image download to
+ * frontmatter, pubDate from page created_time, first paragraph -> description, image download to
  * public/uploads/, .sync-state.json incremental cache, pinyin slug, git commit
  * & push) is kept here.
  *
@@ -278,11 +278,10 @@ async function main() {
     body = escapeTablePipes(body); // escape `|` in code spans inside table rows
     let hero = null;
 
-    // date marker -> pubDate (remove marker line from body)
-    let pubDate = "";
-    const dateMatch = body.match(DATE_RE);
-    if (dateMatch) pubDate = dateMatch[1];
-    body = body.replace(DATE_LINE_RE, "").replace(/^\s*\n/, "");
+    // pubDate always comes from the page's creation time (created_time),
+    // NOT an in-article 📅 marker — guarantees a valid date for every post.
+    const pubDate = (p.created_time || "").slice(0, 10);
+    body = body.replace(DATE_LINE_RE, "").replace(/^\s*\n/, ""); // strip any stray marker line
     body = stripManualToc(body); // drop theme-auto-rendered "## 目录" block
 
     // download images -> local, capture hero
