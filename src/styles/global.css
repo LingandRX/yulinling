@@ -33,6 +33,10 @@ html {
 	font-style: normal;
 	font-display: swap;
 }
+/* 去掉点击时浏览器默认的半透明遮罩（手机 tap highlight） */
+* {
+	-webkit-tap-highlight-color: transparent;
+}
 body {
 	font-family: "Atkinson", sans-serif;
 	margin: 0;
