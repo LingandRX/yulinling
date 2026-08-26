@@ -250,7 +250,7 @@ p {
 		background-color 0.2s ease;
 }
 .code-block:hover .code-copy,
-.code-block .code-copy:focus-visible {
+.code-block .code-copy:focus {
 	opacity: 1;
 }
 .code-block .code-copy:hover {
