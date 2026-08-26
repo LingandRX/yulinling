@@ -101,11 +101,13 @@ const { title, description, pubDate, updatedDate, headings = [] } = Astro.props;
 				color: rgb(var(--accent));
 			}
 			.toc-list a.active {
-				font-weight: 700;
+				color: rgb(var(--accent));
+				background-color: rgba(var(--accent), 8%);
+				border-radius: 4px;
 			}
 			.toc-list .depth-3 {
-				padding-left: 1.2em;
-				font-size: 0.95em;
+				padding-left: 1em;
+				font-size: 0.85em;
 			}
 			@media (min-width: 1200px) {
 				.toc {
