@@ -8,11 +8,13 @@
  * public/uploads/, .sync-state.json incremental cache, pinyin slug, git commit
  * & push) is kept here.
  *
- * Usage: node sync.mjs [--dry-run]
+ * Usage: node sync.mjs [--dry-run] [--force] [--no-push] [--no-commit]
  */
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import crypto from "node:crypto";
+import { fileURLToPath } from "node:url";
 import { execSync } from "node:child_process";
 import { Client } from "@notionhq/client";
 import { NotionToMarkdown } from "notion-to-md";
@@ -21,24 +23,47 @@ import yaml from "js-yaml";
 import { pinyin } from "pinyin-pro";
 
 // ---------------- config ----------------
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const HOME = os.homedir();
-const REPO = path.join(HOME, "yulinling");
+const REPO = process.env.BLOG_REPO_DIR || path.resolve(__dirname, "../..");
 const BLOG_DIR = path.join(REPO, "src/content/blog");
 const UPLOADS_DIR = path.join(REPO, "public/uploads");
 const STATE_FILE = path.join(REPO, ".sync-state.json");
-const NOTION_PARENT = "3bc971f3-e8db-8056-b710-cd0646acbddf"; // 雨霖铃
+const NOTION_PARENT =
+  process.env.NOTION_PARENT_ID || "3bc971f3-e8db-8056-b710-cd0646acbddf"; // 雨霖铃
 const MAX_DESC = 120;
 const DATE_RE = /_*\s*📅\s*发布于\s*([\d-]+)\s*_*/;
 const DATE_LINE_RE = /^[\s_]*📅.*(?:\n|$)/;
 
-const _cfg = yaml.load(fs.readFileSync(path.join(HOME, ".hermes/config.yaml"), "utf8"));
-const TOKEN = _cfg.mcp_servers.notion.env.NOTION_TOKEN;
+function getNotionToken() {
+  if (process.env.NOTION_TOKEN) {
+    return process.env.NOTION_TOKEN;
+  }
+  const hermesConfigPath = path.join(HOME, ".hermes/config.yaml");
+  if (fs.existsSync(hermesConfigPath)) {
+    try {
+      const _cfg = yaml.load(fs.readFileSync(hermesConfigPath, "utf8"));
+      const token = _cfg?.mcp_servers?.notion?.env?.NOTION_TOKEN;
+      if (token) return token;
+    } catch (err) {
+      console.warn(`[warn] 无法解析配置文件 ${hermesConfigPath}:`, err.message);
+    }
+  }
+  console.error(
+    "错误: 未找到 NOTION_TOKEN。请设置环境变量 NOTION_TOKEN 或在 ~/.hermes/config.yaml 中配置。",
+  );
+  process.exit(1);
+}
+
+const TOKEN = getNotionToken();
 
 const notion = new Client({ auth: TOKEN });
 const n2m = new NotionToMarkdown({ notionClient: notion });
 
 const DRY_RUN = process.argv.includes("--dry-run");
 const FORCE = process.argv.includes("--force");
+const NO_PUSH = process.argv.includes("--no-push");
+const NO_COMMIT = process.argv.includes("--no-commit");
 const _ci = process.argv.indexOf("--compare");
 const COMPARE_DIR = _ci !== -1 ? process.argv[_ci + 1] : null;
 
@@ -53,7 +78,10 @@ function slugify(title) {
     .split(/\s+/)
     .map((p) => p.toLowerCase().replace(/[^a-z0-9]/g, ""))
     .filter(Boolean);
-  let out = cleaned.join("-").replace(/-{2,}/g, "-").replace(/^-+|-+$/g, "");
+  let out = cleaned
+    .join("-")
+    .replace(/-{2,}/g, "-")
+    .replace(/^-+|-+$/g, "");
   return out || "post";
 }
 
@@ -91,7 +119,7 @@ async function listNotionPages() {
     p.last_edited_time = meta.last_edited_time || "";
     p.created_time = meta.created_time || "";
     p.url = meta.url || "";
-    await sleep(120);
+    await sleep(250);
   }
   return pages;
 }
@@ -133,33 +161,58 @@ function stripManualToc(body) {
   const re = /##\s*目录[ \t]*\r?\n[\s\S]*?\n---[ \t]*(?:\r?\n)?/;
   const m = re.exec(body);
   if (m && /\]\(#/.test(m[0])) {
-    return body.slice(0, m.index) + body.slice(m.index + m[0].length).replace(/^\s*\n/, "");
+    return (
+      body.slice(0, m.index) +
+      body.slice(m.index + m[0].length).replace(/^\s*\n/, "")
+    );
   }
   return body;
 }
 
 async function downloadImage(url, alt) {
   fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-  let fname = (alt && alt.trim()) || "";
-  if (!fname) {
-    try {
-      fname = decodeURIComponent(new URL(url).pathname.split("/").pop() || "");
-    } catch {
-      fname = "";
+
+  // 使用 URL 去除 query 后的 hash，确保命名稳定且同图不重下、异图不冲突
+  const cleanUrl = url.split("?")[0];
+  const urlHash = crypto
+    .createHash("md5")
+    .update(cleanUrl)
+    .digest("hex")
+    .slice(0, 8);
+
+  let ext = ".jpg";
+  let baseName = (alt && alt.trim()) || "";
+  try {
+    const parsedPath = new URL(url).pathname;
+    const parsedExt = path.extname(parsedPath);
+    if (parsedExt && parsedExt.length <= 5) {
+      ext = parsedExt;
     }
+    if (!baseName) {
+      baseName = path.basename(parsedPath, parsedExt) || "img";
+    }
+  } catch {
+    if (!baseName) baseName = "img";
   }
-  if (!fname) fname = `img-${Date.now()}.jpg`;
-  fname = fname.replace(/[^\w.\-]/g, "_");
+
+  baseName = baseName.replace(/[^\w.\-]/g, "_").slice(0, 30);
+  const fname = `${baseName}_${urlHash}${ext}`;
   const dest = path.join(UPLOADS_DIR, fname);
+
   if (fs.existsSync(dest)) return "/uploads/" + fname;
-  const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" }, redirect: "follow" });
+  const res = await fetch(url, {
+    headers: { "User-Agent": "Mozilla/5.0" },
+    redirect: "follow",
+  });
   if (!res.ok) {
     console.log(`  !! image download failed: ${res.status} ${url}`);
     return null;
   }
   const buf = Buffer.from(await res.arrayBuffer());
   fs.writeFileSync(dest, buf);
-  console.log(`  img: downloaded ${fname} (${Math.round(buf.length / 1024)}KB)`);
+  console.log(
+    `  img: downloaded ${fname} (${Math.round(buf.length / 1024)}KB)`,
+  );
   return "/uploads/" + fname;
 }
 
@@ -201,21 +254,33 @@ function extractDescription(body) {
     // skip non-prose lines: headings, quotes, lists, tables, dividers, images
     if (/^(#{1,6}\s|>\s?|[-*+]\s|\d+\.\s|`|\||-{3,})/.test(t)) continue;
     if (/^!\[/.test(t)) continue; // image
-    return t.replace(/[*`_]/g, "").replace(/\[([^\]]*)\]\([^)]*\)/g, "$1").trim().slice(0, MAX_DESC);
+    return t
+      .replace(/[*`_]/g, "")
+      .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+      .trim()
+      .slice(0, MAX_DESC);
   }
   return "";
 }
 
-function buildFrontmatter({ title, description, pubDate, updated, hero, notionId }) {
-  const lines = ["---"];
-  lines.push(`title: "${title}"`);
-  lines.push(`description: "${(description || "").replace(/"/g, "'")}"`);
-  lines.push(`pubDate: "${pubDate || ""}"`);
-  if (updated) lines.push(`updatedDate: "${updated}"`);
-  if (hero) lines.push(`heroImage: "${hero}"`);
-  lines.push(`notionId: ${notionId}`);
-  lines.push("---");
-  return lines.join("\n");
+function buildFrontmatter({
+  title,
+  description,
+  pubDate,
+  updated,
+  hero,
+  notionId,
+}) {
+  const data = {
+    title,
+    description: description || "",
+    pubDate: pubDate || "",
+  };
+  if (updated) data.updatedDate = updated;
+  if (hero) data.heroImage = hero;
+  if (notionId) data.notionId = String(notionId);
+
+  return `---\n${yaml.dump(data, { lineWidth: -1 }).trim()}\n---`;
 }
 
 // ---------------- main ----------------
@@ -247,7 +312,10 @@ async function main() {
     } else {
       let matched = null;
       for (const [fn, fm] of Object.entries(existing)) {
-        if (!fm.notionId && String(fm.title || "").trim() === String(p.title).trim()) {
+        if (
+          !fm.notionId &&
+          String(fm.title || "").trim() === String(p.title).trim()
+        ) {
           matched = fn;
           break;
         }
@@ -366,17 +434,45 @@ async function main() {
     return;
   }
 
+  if (NO_COMMIT) {
+    console.log(
+      `\n[--no-commit] 同步完成（共 ${writes.length} 篇），跳过 Git 提交与推送。`,
+    );
+    return;
+  }
+
   // git commit & push
   process.chdir(REPO);
   for (const [fn] of writes) {
     execSync(`git add "src/content/blog/${fn}"`, { stdio: "inherit" });
   }
-  execSync("git add public/uploads/", { stdio: "inherit" });
-  execSync(`git commit -m "sync: update ${writes.length} post(s) from Notion"`, {
-    stdio: "inherit",
-  });
-  const out = execSync("git push origin HEAD", { encoding: "utf8" });
-  console.log(`\npush: 0\n${out.slice(-500)}`);
+  if (fs.existsSync(UPLOADS_DIR)) {
+    execSync("git add public/uploads/", { stdio: "inherit" });
+  }
+  execSync(
+    `git commit -m "sync: update ${writes.length} post(s) from Notion"`,
+    {
+      stdio: "inherit",
+    },
+  );
+
+  if (NO_PUSH) {
+    console.log(
+      `\n[--no-push] 本地提交完成（共 ${writes.length} 篇），跳过 Git Push。`,
+    );
+    return;
+  }
+
+  try {
+    const out = execSync("git push origin HEAD", { encoding: "utf8" });
+    console.log(`\npush: 0\n${out.slice(-500)}`);
+  } catch (err) {
+    console.error(
+      "\n[warn] git push 失败，请稍后检查网络或远程分支并手动推送:",
+      err.message,
+    );
+  }
+
   console.log(`\nDone. Synced ${writes.length} file(s).`);
 }
 
