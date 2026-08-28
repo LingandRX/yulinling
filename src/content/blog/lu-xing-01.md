@@ -2,7 +2,7 @@
 title: 旅行 01
 description: ''
 pubDate: '2026-08-11'
-updatedDate: '2026-08-15'
+updatedDate: '2026-08-28'
 heroImage: /uploads/_YLL0201.jpg_b6c5abdc.jpg
 notionId: 3bd971f3-e8db-8131-863b-e83d027ac337
 ---
