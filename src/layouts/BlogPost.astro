@@ -1,314 +1,362 @@
 ---
-import type { CollectionEntry } from 'astro:content';
-import BaseHead from '../components/BaseHead.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import FormattedDate from '../components/FormattedDate.astro';
-import 'photoswipe/style.css';
+import type { CollectionEntry } from "astro:content";
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import FormattedDate from "../components/FormattedDate.astro";
+import { withBase } from "../consts";
+import "photoswipe/style.css";
 
 type Heading = { depth: number; slug: string; text: string };
-type Props = CollectionEntry<'blog'>['data'] & { headings?: Heading[] };
+type Props = CollectionEntry<"blog">["data"] & { headings?: Heading[] };
 
-const { title, description, pubDate, updatedDate, headings = [] } = Astro.props;
+const {
+  title,
+  description,
+  category,
+  categories: categoryList,
+  pubDate,
+  updatedDate,
+  headings = [],
+} = Astro.props;
+const categories = categoryList?.length
+  ? categoryList
+  : category
+    ? [category]
+    : [];
 ---
 
 <html lang="zh-CN">
-	<head>
-		<BaseHead title={title} description={description} />
-		<style>
-			main {
-				width: calc(100% - 2em);
-				max-width: 100%;
-				margin: 0;
-				padding: 0 1em;
-			}
-			.prose {
-				width: 720px;
-				max-width: calc(100% - 2em);
-				margin: auto;
-				padding: 1em;
-				color: rgb(var(--gray-dark));
-			}
-			.title {
-				margin-bottom: 1em;
-				padding: 0 0 1em;
-				text-align: center;
-				line-height: 1;
-			}
-			.title h1 {
-				margin: 0 0 0.25em 0;
-				font-size: 2.4em;
-			}
-			.date {
-				margin-bottom: 0.5em;
-				color: rgb(var(--gray));
-				font-size: 0.85em;
-			}
-			.last-updated-on {
-				font-style: italic;
-			}
-			/* 目录：窄屏顶部卡片，宽屏右侧浮动 */
-			.toc {
-				box-sizing: border-box;
-				margin: 0 0 2.5em;
-				padding: 1.1em 1.4em;
-				border: 1px solid rgb(var(--gray-light));
-				border-radius: 10px;
-				background-color: rgba(var(--gray-light), 25%);
-			}
-			.toc:not([open]) {
-				padding: 0.6em 1.1em;
-			}
-			.toc summary {
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
-				cursor: pointer;
-				font-size: 0.9em;
-				font-weight: 700;
-				color: rgb(var(--gray));
-				list-style: none;
-				user-select: none;
-			}
-			.toc summary::-webkit-details-marker {
-				display: none;
-			}
-			.toc summary::after {
-				content: '▾';
-				transition: transform 0.2s ease;
-			}
-			.toc[open] summary::after {
-				transform: rotate(180deg);
-			}
-			.toc-list {
-				margin: 0;
-				padding: 0;
-				list-style: none;
-			}
-			.toc-list li {
-				margin: 0.25em 0;
-				font-size: 0.88em;
-				line-height: 1.5;
-			}
-			.toc-list a {
-				color: rgb(var(--gray-dark));
-				text-decoration: none;
-				border-bottom: none;
-				transition: color 0.2s ease;
-			}
-			.toc-list a:hover,
-			.toc-list a.active {
-				color: rgb(var(--accent));
-			}
-			.toc-list a.active {
-				background-color: rgba(var(--accent), 8%);
-				border-radius: 4px;
-			}
-			.toc-list .depth-3 {
-				padding-left: 1em;
-				font-size: 0.85em;
-			}
-			/* 锚点跳转留白：目录点击后标题不要紧贴视口顶端 */
-			.prose h1,
-			.prose h2,
-			.prose h3,
-			.prose h4,
-			.prose h5,
-			.prose h6 {
-				scroll-margin-top: 1.5rem;
-			}
-			@media (min-width: 1200px) {
-				.toc {
-					position: fixed;
-					top: 50%;
-					right: max(1em, calc((100% - 720px) / 2 - 230px));
-					transform: translateY(-50%);
-					width: 200px;
-					max-height: 70vh;
-					overflow-y: auto;
-					margin: 0;
-					background-color: rgba(255, 255, 255, 0.92);
-					box-shadow: 0 2px 8px rgba(var(--gray), 12%);
-				}
-				.toc summary {
-					display: none;
-				}
-			}
-		</style>
-	</head>
+  <head>
+    <BaseHead title={title} description={description} />
+    <style>
+      main {
+        width: calc(100% - 2em);
+        max-width: 100%;
+        margin: 0;
+        padding: 0 1em;
+      }
+      .prose {
+        width: 720px;
+        max-width: calc(100% - 2em);
+        margin: auto;
+        padding: 1em;
+        color: rgb(var(--gray-dark));
+      }
+      .title {
+        margin-bottom: 1em;
+        padding: 0 0 1em;
+        text-align: center;
+        line-height: 1;
+      }
+      .title h1 {
+        margin: 0 0 0.25em 0;
+        font-size: 2.4em;
+      }
+      .category {
+        display: inline-block;
+        margin-right: 0.75em;
+        margin-bottom: 0.6em;
+        color: rgb(var(--accent));
+        font-size: 0.85em;
+        text-decoration: none;
+      }
+      .category:hover {
+        text-decoration: underline;
+      }
+      .date {
+        margin-bottom: 0.5em;
+        color: rgb(var(--gray));
+        font-size: 0.85em;
+      }
+      .last-updated-on {
+        font-style: italic;
+      }
+      /* 目录：窄屏顶部卡片，宽屏右侧浮动 */
+      .toc {
+        box-sizing: border-box;
+        margin: 0 0 2.5em;
+        padding: 1.1em 1.4em;
+        border: 1px solid rgb(var(--gray-light));
+        border-radius: 10px;
+        background-color: rgba(var(--gray-light), 25%);
+      }
+      .toc:not([open]) {
+        padding: 0.6em 1.1em;
+      }
+      .toc summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        font-size: 0.9em;
+        font-weight: 700;
+        color: rgb(var(--gray));
+        list-style: none;
+        user-select: none;
+      }
+      .toc summary::-webkit-details-marker {
+        display: none;
+      }
+      .toc summary::after {
+        content: "▾";
+        transition: transform 0.2s ease;
+      }
+      .toc[open] summary::after {
+        transform: rotate(180deg);
+      }
+      .toc-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .toc-list li {
+        margin: 0.25em 0;
+        font-size: 0.88em;
+        line-height: 1.5;
+      }
+      .toc-list a {
+        color: rgb(var(--gray-dark));
+        text-decoration: none;
+        border-bottom: none;
+        transition: color 0.2s ease;
+      }
+      .toc-list a:hover,
+      .toc-list a.active {
+        color: rgb(var(--accent));
+      }
+      .toc-list a.active {
+        background-color: rgba(var(--accent), 8%);
+        border-radius: 4px;
+      }
+      .toc-list .depth-3 {
+        padding-left: 1em;
+        font-size: 0.85em;
+      }
+      /* 锚点跳转留白：目录点击后标题不要紧贴视口顶端 */
+      .prose h1,
+      .prose h2,
+      .prose h3,
+      .prose h4,
+      .prose h5,
+      .prose h6 {
+        scroll-margin-top: 1.5rem;
+      }
+      @media (min-width: 1200px) {
+        .toc {
+          position: fixed;
+          top: 50%;
+          right: max(1em, calc((100% - 720px) / 2 - 230px));
+          transform: translateY(-50%);
+          width: 200px;
+          max-height: 70vh;
+          overflow-y: auto;
+          margin: 0;
+          background-color: rgba(255, 255, 255, 0.92);
+          box-shadow: 0 2px 8px rgba(var(--gray), 12%);
+        }
+        .toc summary {
+          display: none;
+        }
+      }
+    </style>
+  </head>
 
-	<body>
-		<Header />
-		<main>
-			<article>
-				<div class="prose">
-					<div class="title">
-						<h1>{title}</h1>
-						<div class="date">
-							<FormattedDate date={pubDate} />
-							{
-								updatedDate && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
-									</div>
-								)
-							}
-						</div>
-					</div>
-					{
-						headings.length > 2 && (
-							<details class="toc" open>
-								<summary>目录</summary>
-								<ol class="toc-list">
-									{headings.map((h) => (
-										<li class:list={[`depth-${h.depth}`]}>
-											<a href={`#${h.slug}`}>{h.text}</a>
-										</li>
-									))}
-								</ol>
-							</details>
-						)
-					}
-					<slot />
-				</div>
-			</article>
-		</main>
-		<Footer />
-		<script>
-			import PhotoSwipeLightbox from 'photoswipe/lightbox';
-			import PhotoSwipe from 'photoswipe';
+  <body>
+    <Header />
+    <main>
+      <article>
+        <div class="prose">
+          <div class="title">
+            <h1>{title}</h1>
+            <div class="categories">
+              {
+                categories.map((category) => (
+                  <a
+                    class="category"
+                    href={withBase(
+                      `/category/${encodeURIComponent(category)}/`,
+                    )}
+                  >
+                    {category}
+                  </a>
+                ))
+              }
+            </div>
+            <div class="date">
+              <FormattedDate date={pubDate} />
+              {
+                updatedDate && (
+                  <div class="last-updated-on">
+                    Last updated on <FormattedDate date={updatedDate} />
+                  </div>
+                )
+              }
+            </div>
+          </div>
+          {
+            headings.length > 2 && (
+              <details class="toc" open>
+                <summary>目录</summary>
+                <ol class="toc-list">
+                  {headings.map((h) => (
+                    <li class:list={[`depth-${h.depth}`]}>
+                      <a href={`#${h.slug}`}>{h.text}</a>
+                    </li>
+                  ))}
+                </ol>
+              </details>
+            )
+          }
+          <slot />
+        </div>
+      </article>
+    </main>
+    <Footer />
+    <script>
+      import PhotoSwipeLightbox from "photoswipe/lightbox";
+      import PhotoSwipe from "photoswipe";
 
-			// 图片灯箱：点正文图片全屏预览，可翻页查看本篇文章全部图片
-			function setupLightbox() {
-				const lightbox = new PhotoSwipeLightbox({
-					gallery: '.prose',
-					children: 'a[data-pswp-width]',
-					pswpModule: PhotoSwipe,
-					bgOpacity: 0.95,
-					showHideAnimationType: 'zoom',
-				});
-				lightbox.init();
-			}
+      // 图片灯箱：点正文图片全屏预览，可翻页查看本篇文章全部图片
+      function setupLightbox() {
+        const lightbox = new PhotoSwipeLightbox({
+          gallery: ".prose",
+          children: "a[data-pswp-width]",
+          pswpModule: PhotoSwipe,
+          bgOpacity: 0.95,
+          showHideAnimationType: "zoom",
+        });
+        lightbox.init();
+      }
 
-			// 给每块代码块添加右上角「复制」按钮
-			function addCopyButtons() {
-				document.querySelectorAll('.prose pre').forEach((pre) => {
-					// 已包过容器的跳过，避免重复注入
-					if (pre.parentElement?.classList.contains('code-block')) return;
+      // 给每块代码块添加右上角「复制」按钮
+      function addCopyButtons() {
+        document.querySelectorAll(".prose pre").forEach((pre) => {
+          // 已包过容器的跳过，避免重复注入
+          if (pre.parentElement?.classList.contains("code-block")) return;
 
-					const wrapper = document.createElement('div');
-					wrapper.className = 'code-block';
-					pre.parentNode?.insertBefore(wrapper, pre);
-					wrapper.appendChild(pre);
+          const wrapper = document.createElement("div");
+          wrapper.className = "code-block";
+          pre.parentNode?.insertBefore(wrapper, pre);
+          wrapper.appendChild(pre);
 
-					const btn = document.createElement('button');
-					btn.type = 'button';
-					btn.className = 'code-copy';
-					btn.textContent = '复制';
-					btn.setAttribute('aria-label', '复制代码');
-					wrapper.appendChild(btn);
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "code-copy";
+          btn.textContent = "复制";
+          btn.setAttribute("aria-label", "复制代码");
+          wrapper.appendChild(btn);
 
-					btn.addEventListener('click', async () => {
-						const text = pre.textContent.replace(/\n$/, '');
-						const ok = await copyText(text);
-						btn.textContent = ok ? '已复制 ✓' : '复制失败';
-						setTimeout(() => {
-							btn.textContent = '复制';
-						}, 1500);
-					});
-				});
-			}
+          btn.addEventListener("click", async () => {
+            const text = pre.textContent.replace(/\n$/, "");
+            const ok = await copyText(text);
+            btn.textContent = ok ? "已复制 ✓" : "复制失败";
+            setTimeout(() => {
+              btn.textContent = "复制";
+            }, 1500);
+          });
+        });
+      }
 
-			async function copyText(text) {
-				if (navigator.clipboard && window.isSecureContext) {
-					try {
-						await navigator.clipboard.writeText(text);
-						return true;
-					} catch {
-						/* 降级到下方方案 */
-					}
-				}
-				try {
-					const ta = document.createElement('textarea');
-					ta.value = text;
-					ta.setAttribute('readonly', '');
-					ta.style.position = 'fixed';
-					ta.style.opacity = '0';
-					document.body.appendChild(ta);
-					ta.select();
-					const ok = document.execCommand('copy');
-					ta.remove();
-					return ok;
-				} catch {
-					return false;
-				}
-			}
+      async function copyText(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+          try {
+            await navigator.clipboard.writeText(text);
+            return true;
+          } catch {
+            /* 降级到下方方案 */
+          }
+        }
+        try {
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          ta.setAttribute("readonly", "");
+          ta.style.position = "fixed";
+          ta.style.opacity = "0";
+          document.body.appendChild(ta);
+          ta.select();
+          const ok = document.execCommand("copy");
+          ta.remove();
+          return ok;
+        } catch {
+          return false;
+        }
+      }
 
-			// 目录滚动高亮：标记当前所在的章节
-			function setupTocSpy() {
-				const links = Array.from(document.querySelectorAll('.toc-list a'));
-				if (links.length === 0) return;
-				const targets = links
-					.map((a) => document.getElementById(a.getAttribute('href').slice(1)))
-					.filter(Boolean);
+      // 目录滚动高亮：标记当前所在的章节
+      function setupTocSpy() {
+        const links = Array.from(document.querySelectorAll(".toc-list a"));
+        if (links.length === 0) return;
+        const targets = links
+          .map((a) => document.getElementById(a.getAttribute("href").slice(1)))
+          .filter(Boolean);
 
-				// 点击目录：立即高亮所点项；若目标在页面末尾滚不到高亮线，
-				// 保持高亮直到它越过视口中线，避免被“滚到底强制末项”的逻辑覆盖
-				let pending = null;
-				for (const a of links) {
-					a.addEventListener('click', () => {
-						pending = a.getAttribute('href').slice(1);
-						links.forEach((x) => x.classList.toggle('active', x === a));
-					});
-				}
+        // 点击目录：立即高亮所点项；若目标在页面末尾滚不到高亮线，
+        // 保持高亮直到它越过视口中线，避免被“滚到底强制末项”的逻辑覆盖
+        let pending = null;
+        for (const a of links) {
+          a.addEventListener("click", () => {
+            pending = a.getAttribute("href").slice(1);
+            links.forEach((x) => x.classList.toggle("active", x === a));
+          });
+        }
 
-				const update = () => {
-					const sc = window.scrollY;
-					const line = sc + 120;
-					const half = sc + window.innerHeight / 2;
-					const docHeight = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
-					const maxScroll = Math.max(0, docHeight - window.innerHeight);
-					let active = targets[0];
-					for (const t of targets) {
-						const top = t.getBoundingClientRect().top + sc;
-						if (top <= line || (top <= half && top > maxScroll + 120)) active = t;
-					}
-					// 兜底：滚到底部时仍未选中最后一个标题，则强制选中它
-					if (sc >= maxScroll - 2) {
-						active = targets[targets.length - 1];
-					}
-					// 点击的目标若仍显示在视口下半部，暂时保持它的高亮
-					if (pending) {
-						const forced = targets.find((t) => t.id === pending);
-						if (forced && forced.getBoundingClientRect().top + sc > half) {
-							active = forced;
-						} else {
-							pending = null; // 目标已越过中线，交还给滚动规则
-						}
-					}
-					links.forEach((a) => {
-						a.classList.toggle('active', a.getAttribute('href') === `#${active.id}`);
-					});
-				};
+        const update = () => {
+          const sc = window.scrollY;
+          const line = sc + 120;
+          const half = sc + window.innerHeight / 2;
+          const docHeight = Math.max(
+            document.documentElement.scrollHeight,
+            document.body.scrollHeight,
+          );
+          const maxScroll = Math.max(0, docHeight - window.innerHeight);
+          let active = targets[0];
+          for (const t of targets) {
+            const top = t.getBoundingClientRect().top + sc;
+            if (top <= line || (top <= half && top > maxScroll + 120))
+              active = t;
+          }
+          // 兜底：滚到底部时仍未选中最后一个标题，则强制选中它
+          if (sc >= maxScroll - 2) {
+            active = targets[targets.length - 1];
+          }
+          // 点击的目标若仍显示在视口下半部，暂时保持它的高亮
+          if (pending) {
+            const forced = targets.find((t) => t.id === pending);
+            if (forced && forced.getBoundingClientRect().top + sc > half) {
+              active = forced;
+            } else {
+              pending = null; // 目标已越过中线，交还给滚动规则
+            }
+          }
+          links.forEach((a) => {
+            a.classList.toggle(
+              "active",
+              a.getAttribute("href") === `#${active.id}`,
+            );
+          });
+        };
 
-				window.addEventListener('scroll', () => requestAnimationFrame(update), { passive: true });
-				update();
-			}
+        window.addEventListener("scroll", () => requestAnimationFrame(update), {
+          passive: true,
+        });
+        update();
+      }
 
-			// 目录展开状态随断点同步：移动端默认收起，桌面端(≥1200px)常开
-			const tocDetails = document.querySelector('.toc');
-			if (tocDetails) {
-				const mq = window.matchMedia('(max-width: 1199px)');
-				const syncToc = () => {
-					if (mq.matches) tocDetails.removeAttribute('open');
-					else tocDetails.setAttribute('open', '');
-				};
-				syncToc();
-				mq.addEventListener('change', syncToc);
-			}
-			addCopyButtons();
-			setupTocSpy();
-			setupLightbox();
-		</script>
-	</body>
+      // 目录展开状态随断点同步：移动端默认收起，桌面端(≥1200px)常开
+      const tocDetails = document.querySelector(".toc");
+      if (tocDetails) {
+        const mq = window.matchMedia("(max-width: 1199px)");
+        const syncToc = () => {
+          if (mq.matches) tocDetails.removeAttribute("open");
+          else tocDetails.setAttribute("open", "");
+        };
+        syncToc();
+        mq.addEventListener("change", syncToc);
+      }
+      addCopyButtons();
+      setupTocSpy();
+      setupLightbox();
+    </script>
+  </body>
 </html>
