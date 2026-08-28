@@ -266,6 +266,8 @@ function extractDescription(body) {
 function buildFrontmatter({
   title,
   description,
+  category,
+  categories,
   pubDate,
   updated,
   hero,
@@ -274,6 +276,7 @@ function buildFrontmatter({
   const data = {
     title,
     description: description || "",
+    categories: categories?.length ? categories : [category || "未分类"],
     pubDate: pubDate || "",
   };
   if (updated) data.updatedDate = updated;
@@ -376,6 +379,9 @@ async function main() {
     const fmText = buildFrontmatter({
       title,
       description: desc,
+      categories: existing[fn]?.categories?.length
+        ? existing[fn].categories
+        : [existing[fn]?.category || "未分类"],
       pubDate,
       updated,
       hero,

@@ -1,0 +1,57 @@
+---
+import BaseHead from "../../components/BaseHead.astro";
+import Footer from "../../components/Footer.astro";
+import Header from "../../components/Header.astro";
+import PostList from "../../components/PostList.astro";
+import { getCollection } from "astro:content";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+  const categories = [
+    ...new Set(posts.flatMap((post) => post.data.categories)),
+  ];
+
+  return categories.map((category) => {
+    const categoryPosts = posts
+      .filter((post) => post.data.categories.includes(category))
+      .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+    return {
+      params: { category },
+      props: { category, posts: categoryPosts },
+    };
+  });
+}
+
+interface Props {
+  category: string;
+  posts: Awaited<ReturnType<typeof getCollection<"blog">>>;
+}
+
+const { category, posts } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <BaseHead
+      title={`${category} - ${SITE_TITLE}`}
+      description={SITE_DESCRIPTION}
+    />
+  </head>
+  <body>
+    <Header />
+    <main>
+      <h1 class="category-title">分类：{category}</h1>
+      <PostList posts={posts} />
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  .category-title {
+    margin-bottom: 1.5rem;
+    font-size: 2em;
+  }
+</style>
