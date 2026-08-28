@@ -137,7 +137,7 @@ ssh -T git@github.com
 scp -P 22 ~/.ssh/id_rsa.pub root@ipAddr:~/id_rsa.pub
 ```
 
-1. 在服务器上追加到 `authorized_keys`（推荐用追加，避免覆盖）
+2. 在服务器上追加到 `authorized_keys`（推荐用追加，避免覆盖）
 
 ```bash
 mkdir -p ~/.ssh
@@ -146,7 +146,7 @@ chmod 700 ~/.ssh
 chmod 600 ~/.ssh/authorized_keys
 ```
 
-1. 测试登录
+3. 测试登录
 
 ```bash
 ssh root@ipAddr
