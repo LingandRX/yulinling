@@ -1,8 +1,8 @@
 ---
-title: "递归函数"
-description: "递归函数：在函数内部直接或间接调用自身。"
-pubDate: "2024-03-20"
-updatedDate: "2026-08-24"
+title: 递归函数
+description: 递归函数：在函数内部直接或间接调用自身。
+pubDate: '2024-03-20'
+updatedDate: '2026-08-24'
 notionId: 3bd971f3-e8db-8186-9284-e225a405238e
 ---
 
