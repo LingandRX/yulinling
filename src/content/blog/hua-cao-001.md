@@ -5,6 +5,8 @@ pubDate: '2026-05-17'
 updatedDate: '2026-08-28'
 heroImage: /uploads/IMG_0184.jpg_3bea65cb.jpg
 notionId: 3bd971f3-e8db-8135-892e-cde0d3d6248f
+categories:
+  - 摄影
 ---
 
 ![IMG_0184.jpg](/uploads/IMG_0184.jpg_3bea65cb.jpg)

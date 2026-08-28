@@ -4,6 +4,8 @@ description: 可选：查看当前配置
 pubDate: '2023-05-31'
 updatedDate: '2026-08-28'
 notionId: 3bd971f3-e8db-81b5-b779-e2bd0dfbece9
+categories:
+  - 技术
 ---
 
 ## 常用命令速查

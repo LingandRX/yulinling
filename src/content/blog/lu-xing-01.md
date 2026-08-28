@@ -5,6 +5,9 @@ pubDate: '2026-08-11'
 updatedDate: '2026-08-28'
 heroImage: /uploads/_YLL0201.jpg_b6c5abdc.jpg
 notionId: 3bd971f3-e8db-8131-863b-e83d027ac337
+categories:
+  - 摄影
+  - 旅行
 ---
 
 ![_YLL0201.jpg](/uploads/_YLL0201.jpg_b6c5abdc.jpg)
