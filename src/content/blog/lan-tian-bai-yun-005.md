@@ -5,6 +5,8 @@ pubDate: '2026-08-28'
 updatedDate: '2026-08-28'
 heroImage: /uploads/_YLL0222_compressed.jpeg_79d31fe8.jpeg
 notionId: 3ca971f3-e8db-80c6-aae5-f42aa0e18bc9
+categories:
+  - 摄影
 ---
 
 ![_YLL0222_compressed.jpeg](/uploads/_YLL0222_compressed.jpeg_79d31fe8.jpeg)

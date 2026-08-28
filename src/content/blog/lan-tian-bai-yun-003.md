@@ -5,6 +5,8 @@ pubDate: '2026-08-11'
 updatedDate: '2026-08-28'
 heroImage: /uploads/IMG_20260806_172853_1.jpeg_8019bff4.jpeg
 notionId: 3bd971f3-e8db-8192-b3b4-cb643b3fbfb2
+categories:
+  - 摄影
 ---
 
 ![IMG_20260806_172853_1.jpeg](/uploads/IMG_20260806_172853_1.jpeg_8019bff4.jpeg)
