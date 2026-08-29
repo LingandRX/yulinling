@@ -199,7 +199,10 @@ async function downloadImage(url, alt) {
   const fname = `${baseName}_${urlHash}${ext}`;
   const dest = path.join(UPLOADS_DIR, fname);
 
+  // 检查目标文件是否已存在
   if (fs.existsSync(dest)) return "/uploads/" + fname;
+
+  // 下载图片内容
   const res = await fetch(url, {
     headers: { "User-Agent": "Mozilla/5.0" },
     redirect: "follow",
@@ -209,6 +212,28 @@ async function downloadImage(url, alt) {
     return null;
   }
   const buf = Buffer.from(await res.arrayBuffer());
+
+  // 计算下载内容的MD5哈希，检查是否已存在相同内容的文件
+  const contentHash = crypto.createHash("md5").update(buf).digest("hex");
+  
+  // 扫描现有文件，检查是否有相同内容的文件
+  const existingFiles = fs.readdirSync(UPLOADS_DIR).filter(f => 
+    f.endsWith('.jpg') || f.endsWith('.jpeg') || f.endsWith('.png')
+  );
+  
+  for (const existingFile of existingFiles) {
+    const existingPath = path.join(UPLOADS_DIR, existingFile);
+    const existingContent = fs.readFileSync(existingPath);
+    const existingHash = crypto.createHash("md5").update(existingContent).digest("hex");
+    
+    if (existingHash === contentHash) {
+      // 找到相同内容的文件，返回该文件的路径
+      console.log(`  img: found duplicate content, using existing: ${existingFile}`);
+      return "/uploads/" + existingFile;
+    }
+  }
+
+  // 没有找到重复内容，保存新文件
   fs.writeFileSync(dest, buf);
   console.log(
     `  img: downloaded ${fname} (${Math.round(buf.length / 1024)}KB)`,
