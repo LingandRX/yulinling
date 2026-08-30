@@ -8,7 +8,10 @@ import { withBase } from "../consts";
 import "photoswipe/style.css";
 
 type Heading = { depth: number; slug: string; text: string };
-type Props = CollectionEntry<"blog">["data"] & { headings?: Heading[] };
+type Props = Omit<CollectionEntry<"blog">["data"], "pubDate"> & {
+  pubDate?: Date;
+  headings?: Heading[];
+};
 
 const {
   title,
@@ -183,16 +186,18 @@ const categories = categoryList?.length
                 ))
               }
             </div>
-            <div class="date">
-              <FormattedDate date={pubDate} />
-              {
-                updatedDate && (
-                  <div class="last-updated-on">
-                    Last updated on <FormattedDate date={updatedDate} />
-                  </div>
-                )
-              }
-            </div>
+            {
+              (pubDate || updatedDate) && (
+                <div class="date">
+                  {pubDate && <FormattedDate date={pubDate} />}
+                  {updatedDate && (
+                    <div class="last-updated-on">
+                      Last updated on <FormattedDate date={updatedDate} />
+                    </div>
+                  )}
+                </div>
+              )
+            }
           </div>
           {
             headings.length > 2 && (
