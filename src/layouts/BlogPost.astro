@@ -33,12 +33,6 @@ const categories = categoryList?.length
   <head>
     <BaseHead title={title} description={description} />
     <style>
-      main {
-        width: calc(100% - 2em);
-        max-width: 100%;
-        margin: 0;
-        padding: 0 1em;
-      }
       .prose {
         width: 720px;
         max-width: calc(100% - 2em);
@@ -48,7 +42,6 @@ const categories = categoryList?.length
       }
       .title {
         margin-bottom: 1em;
-        padding: 0 0 1em;
         text-align: center;
         line-height: 1;
       }
@@ -68,9 +61,10 @@ const categories = categoryList?.length
         text-decoration: underline;
       }
       .date {
-        margin-bottom: 0.5em;
+        margin: 2em 0 0;
         color: rgb(var(--gray));
         font-size: 0.85em;
+        text-align: center;
       }
       .last-updated-on {
         font-style: italic;
@@ -168,24 +162,41 @@ const categories = categoryList?.length
   <body>
     <Header />
     <main>
-      <article>
-        <div class="prose">
-          <div class="title">
-            <h1>{title}</h1>
-            <div class="categories">
-              {
-                categories.map((category) => (
-                  <a
-                    class="category"
-                    href={withBase(
-                      `/category/${encodeURIComponent(category)}/`,
-                    )}
-                  >
-                    {category}
-                  </a>
-                ))
-              }
+      <div class="masonry-wrap">
+        <article>
+          <div class="prose">
+            <div class="title">
+              <h1>{title}</h1>
+              <div class="categories">
+                {
+                  categories.map((category) => (
+                    <a
+                      class="category"
+                      href={withBase(
+                        `/category/${encodeURIComponent(category)}/`,
+                      )}
+                    >
+                      {category}
+                    </a>
+                  ))
+                }
+              </div>
             </div>
+            {
+              headings.length > 2 && (
+                <details class="toc" open>
+                  <summary>目录</summary>
+                  <ol class="toc-list">
+                    {headings.map((h) => (
+                      <li class:list={[`depth-${h.depth}`]}>
+                        <a href={`#${h.slug}`}>{h.text}</a>
+                      </li>
+                    ))}
+                  </ol>
+                </details>
+              )
+            }
+            <slot />
             {
               (pubDate || updatedDate) && (
                 <div class="date">
@@ -199,23 +210,8 @@ const categories = categoryList?.length
               )
             }
           </div>
-          {
-            headings.length > 2 && (
-              <details class="toc" open>
-                <summary>目录</summary>
-                <ol class="toc-list">
-                  {headings.map((h) => (
-                    <li class:list={[`depth-${h.depth}`]}>
-                      <a href={`#${h.slug}`}>{h.text}</a>
-                    </li>
-                  ))}
-                </ol>
-              </details>
-            )
-          }
-          <slot />
-        </div>
-      </article>
+        </article>
+      </div>
     </main>
     <Footer />
     <script>
