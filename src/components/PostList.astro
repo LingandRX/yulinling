@@ -1,73 +1,81 @@
 ---
-import FormattedDate from './FormattedDate.astro';
-import type { CollectionEntry } from 'astro:content';
-import { withBase } from '../consts';
+import FormattedDate from "./FormattedDate.astro";
+import type { CollectionEntry } from "astro:content";
+import { withBase } from "../consts";
 
 type Props = {
-	posts: CollectionEntry<'blog'>[];
+  posts: CollectionEntry<"blog">[];
 };
 
 const { posts } = Astro.props;
 ---
 
-<div class="masonry">
-	{
-		posts.map((post) => (
-			<a href={withBase(`/blog/${post.id}/`)} class="card">
-				{post.data.heroImage && (
-					<img width={720} height={360} src={withBase(post.data.heroImage)} alt="" loading="lazy" />
-				)}
-				<h4 class="title">{post.data.title}</h4>
-				<p class="date">
-					<FormattedDate date={post.data.pubDate} />
-				</p>
-			</a>
-		))
-	}
+<div class="masonry-wrap">
+  <div class="masonry">
+    {
+      posts.map((post) => (
+        <a href={withBase(`/blog/${post.id}/`)} class="card">
+          {post.data.heroImage && (
+            <img
+              width={720}
+              height={360}
+              src={withBase(post.data.heroImage)}
+              alt=""
+              loading="lazy"
+            />
+          )}
+          <h4 class="title">{post.data.title}</h4>
+          <p class="date">
+            <FormattedDate date={post.data.pubDate} />
+          </p>
+        </a>
+      ))
+    }
+  </div>
 </div>
 
 <style>
-	.masonry {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		gap: 2rem;
-	}
-	.card {
-		display: flex;
-		flex-direction: column;
-		width: 100%;
-		margin: 0;
-		text-decoration: none;
-		transition: 0.2s ease;
-	}
-	.card img {
-		width: 100%;
-		height: 200px;
-		object-fit: cover;
-		border-radius: 16px;
-		margin-bottom: 0.75rem;
-	}
-	.title {
-		margin: 0;
-		color: rgb(var(--black));
-		line-height: 1.3;
-	}
-	.date {
-		margin-top: auto;
-		padding-top: 0.5em;
-		color: rgb(var(--gray));
-	}
-	.card:hover h4,
-	.card:hover .date {
-		color: rgb(var(--accent));
-	}
-	.card:hover img {
-		box-shadow: var(--box-shadow);
-	}
-	@media (max-width: 720px) {
-		.masonry {
-			grid-template-columns: 1fr;
-			gap: 0;
-		}
-	}
+  .masonry {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin: 0;
+    text-decoration: none;
+    transition: 0.2s ease;
+  }
+  .card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 16px;
+    margin-bottom: 0.75rem;
+  }
+  .title {
+    margin: 0;
+    color: rgb(var(--black));
+    line-height: 1.3;
+  }
+  .date {
+    margin-top: auto;
+    padding-top: 0.5em;
+    color: rgb(var(--gray));
+  }
+  .card:hover h4,
+  .card:hover .date {
+    color: rgb(var(--accent));
+  }
+  .card:hover img {
+    box-shadow: var(--box-shadow);
+  }
+  @media (max-width: 720px) {
+    .masonry {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+  }
 </style>

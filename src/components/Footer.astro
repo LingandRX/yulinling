@@ -1,35 +1,53 @@
 ---
-import { SITE_TITLE, SITE_SHOW_BEIAN, SITE_ICP, SITE_ICP_LINK, SITE_GONGAN, SITE_GONGAN_LINK } from '../consts';
+import {
+  SITE_TITLE,
+  SITE_SHOW_BEIAN,
+  SITE_ICP,
+  SITE_ICP_LINK,
+  SITE_GONGAN,
+  SITE_GONGAN_LINK,
+} from "../consts";
 const today = new Date();
 ---
 
 <footer>
-	<p>&copy; {today.getFullYear()} {SITE_TITLE}. All rights reserved.</p>
-	{
-		SITE_SHOW_BEIAN && (
-			<p class="beian">
-				<a href={SITE_ICP_LINK} target="_blank" rel="noopener">{SITE_ICP}</a>
-				<a href={SITE_GONGAN_LINK} target="_blank" rel="noopener">{SITE_GONGAN}</a>
-			</p>
-		)
-	}
+  <p>&copy; {today.getFullYear()} {SITE_TITLE}. All rights reserved.</p>
+  {
+    SITE_SHOW_BEIAN && (
+      <p class="beian">
+        <a href={SITE_ICP_LINK} target="_blank" rel="noopener">
+          {SITE_ICP}
+        </a>
+        <a href={SITE_GONGAN_LINK} target="_blank" rel="noopener">
+          {SITE_GONGAN}
+        </a>
+      </p>
+    )
+  }
 </footer>
 <style>
-	footer {
-		padding: 2em 1em 6em 1em;
-		background: linear-gradient(var(--gray-gradient)) no-repeat;
-		color: rgb(var(--gray));
-		text-align: center;
-	}
-	footer p {
-		margin: 0.5em 0;
-	}
-	.beian a {
-		color: rgb(var(--gray));
-		text-decoration: none;
-		margin: 0 0.5em;
-	}
-	.beian a:hover {
-		color: rgb(var(--gray-dark));
-	}
+  footer {
+    padding: 2em 1em 6em 1em;
+    color: rgb(var(--gray));
+    text-align: center;
+  }
+  footer::before {
+    content: "";
+    display: block;
+    width: 75%;
+    height: 1px;
+    margin: 0 auto 1.5em;
+    background-color: rgb(var(--gray));
+  }
+  footer p {
+    margin: 0.5em 0;
+  }
+  .beian a {
+    color: rgb(var(--gray));
+    text-decoration: none;
+    margin: 0 0.5em;
+  }
+  .beian a:hover {
+    color: rgb(var(--gray-dark));
+  }
 </style>

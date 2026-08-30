@@ -36,11 +36,6 @@ const { page: currentPage, posts, totalPages } = Astro.props;
 <html lang="zh-CN">
 	<head>
 		<BaseHead title={`${SITE_TITLE} - 第 ${currentPage} 页`} description={SITE_DESCRIPTION} />
-		<style>
-			main {
-				width: 960px;
-			}
-		</style>
 	</head>
 	<body>
 		<Header />
