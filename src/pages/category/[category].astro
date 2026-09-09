@@ -8,9 +8,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
-  const categories = [
-    ...new Set(posts.flatMap((post) => post.data.categories)),
-  ];
+  const categories = [...new Set(posts.flatMap((post) => post.data.categories))];
 
   return categories.map((category) => {
     const categoryPosts = posts
@@ -34,10 +32,7 @@ const { category, posts } = Astro.props;
 <!doctype html>
 <html lang="zh-CN">
   <head>
-    <BaseHead
-      title={`${category} - ${SITE_TITLE}`}
-      description={SITE_DESCRIPTION}
-    />
+    <BaseHead title={`${category} - ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
   </head>
   <body>
     <Header />

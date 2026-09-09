@@ -142,11 +142,7 @@ async function main() {
         desc = await ask(rl, "简介（回车留空）: ", "");
       }
       if (hero === undefined) {
-        hero = await ask(
-          rl,
-          "封面图路径，如 /uploads/xxx.jpg（回车留空）: ",
-          "",
-        );
+        hero = await ask(rl, "封面图路径，如 /uploads/xxx.jpg（回车留空）: ", "");
       }
     } finally {
       rl.close();
@@ -176,9 +172,7 @@ async function main() {
   const fileSlug = path.basename(file, ".md");
   console.log(`\n✅ 文章模板已创建: ${file}`);
   console.log(`   预览地址: /blog/${fileSlug}/`);
-  console.log(
-    `   本地预览: npm run dev  →  http://localhost:4321/blog/${fileSlug}/\n`,
-  );
+  console.log(`   本地预览: npm run dev  →  http://localhost:4321/blog/${fileSlug}/\n`);
 }
 
 /** 交互式提问 */

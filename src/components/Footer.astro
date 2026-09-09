@@ -11,19 +11,19 @@ const today = new Date();
 ---
 
 <footer>
-  <p>&copy; {today.getFullYear()} {SITE_TITLE}. All rights reserved.</p>
-  {
-    SITE_SHOW_BEIAN && (
-      <p class="beian">
-        <a href={SITE_ICP_LINK} target="_blank" rel="noopener">
-          {SITE_ICP}
-        </a>
-        <a href={SITE_GONGAN_LINK} target="_blank" rel="noopener">
-          {SITE_GONGAN}
-        </a>
-      </p>
-    )
-  }
+  <p>
+    &copy; {today.getFullYear()} {SITE_TITLE}. All rights reserved.
+  </p>
+  {SITE_SHOW_BEIAN && (
+    <p class="beian">
+      <a href={SITE_ICP_LINK} target="_blank" rel="noopener">
+        {SITE_ICP}
+      </a>
+      <a href={SITE_GONGAN_LINK} target="_blank" rel="noopener">
+        {SITE_GONGAN}
+      </a>
+    </p>
+  )}
 </footer>
 <style>
   footer {

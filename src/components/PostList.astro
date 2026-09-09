@@ -12,25 +12,17 @@ const { posts } = Astro.props;
 
 <div class="masonry-wrap">
   <div class="masonry">
-    {
-      posts.map((post) => (
-        <a href={withBase(`/blog/${post.id}/`)} class="card">
-          {post.data.heroImage && (
-            <img
-              width={720}
-              height={360}
-              src={withBase(post.data.heroImage)}
-              alt=""
-              loading="lazy"
-            />
-          )}
-          <h4 class="title">{post.data.title}</h4>
-          <p class="date">
-            <FormattedDate date={post.data.pubDate} />
-          </p>
-        </a>
-      ))
-    }
+    {posts.map((post) => (
+      <a href={withBase(`/blog/${post.id}/`)} class="card">
+        {post.data.heroImage && (
+          <img width={720} height={360} src={withBase(post.data.heroImage)} alt="" loading="lazy" />
+        )}
+        <h4 class="title">{post.data.title}</h4>
+        <p class="date">
+          <FormattedDate date={post.data.pubDate} />
+        </p>
+      </a>
+    ))}
   </div>
 </div>
 

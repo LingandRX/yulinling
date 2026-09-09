@@ -22,11 +22,7 @@ const {
   updatedDate,
   headings = [],
 } = Astro.props;
-const categories = categoryList?.length
-  ? categoryList
-  : category
-    ? [category]
-    : [];
+const categories = categoryList?.length ? categoryList : category ? [category] : [];
 ---
 
 <html lang="zh-CN">
@@ -168,47 +164,36 @@ const categories = categoryList?.length
             <div class="title">
               <h1>{title}</h1>
               <div class="categories">
-                {
-                  categories.map((category) => (
-                    <a
-                      class="category"
-                      href={withBase(
-                        `/category/${encodeURIComponent(category)}/`,
-                      )}
-                    >
-                      {category}
-                    </a>
-                  ))
-                }
+                {categories.map((category) => (
+                  <a class="category" href={withBase(`/category/${encodeURIComponent(category)}/`)}>
+                    {category}
+                  </a>
+                ))}
               </div>
             </div>
-            {
-              headings.length > 2 && (
-                <details class="toc" open>
-                  <summary>目录</summary>
-                  <ol class="toc-list">
-                    {headings.map((h) => (
-                      <li class:list={[`depth-${h.depth}`]}>
-                        <a href={`#${h.slug}`}>{h.text}</a>
-                      </li>
-                    ))}
-                  </ol>
-                </details>
-              )
-            }
+            {headings.length > 2 && (
+              <details class="toc" open>
+                <summary>目录</summary>
+                <ol class="toc-list">
+                  {headings.map((h) => (
+                    <li class:list={[`depth-${h.depth}`]}>
+                      <a href={`#${h.slug}`}>{h.text}</a>
+                    </li>
+                  ))}
+                </ol>
+              </details>
+            )}
             <slot />
-            {
-              (pubDate || updatedDate) && (
-                <div class="date">
-                  {pubDate && <FormattedDate date={pubDate} />}
-                  {updatedDate && (
-                    <div class="last-updated-on">
-                      Last updated on <FormattedDate date={updatedDate} />
-                    </div>
-                  )}
-                </div>
-              )
-            }
+            {(pubDate || updatedDate) && (
+              <div class="date">
+                {pubDate && <FormattedDate date={pubDate} />}
+                {updatedDate && (
+                  <div class="last-updated-on">
+                    Last updated on <FormattedDate date={updatedDate} />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </article>
       </div>
@@ -314,8 +299,7 @@ const categories = categoryList?.length
           let active = targets[0];
           for (const t of targets) {
             const top = t.getBoundingClientRect().top + sc;
-            if (top <= line || (top <= half && top > maxScroll + 120))
-              active = t;
+            if (top <= line || (top <= half && top > maxScroll + 120)) active = t;
           }
           // 兜底：滚到底部时仍未选中最后一个标题，则强制选中它
           if (sc >= maxScroll - 2) {
@@ -331,10 +315,7 @@ const categories = categoryList?.length
             }
           }
           links.forEach((a) => {
-            a.classList.toggle(
-              "active",
-              a.getAttribute("href") === `#${active.id}`,
-            );
+            a.classList.toggle("active", a.getAttribute("href") === `#${active.id}`);
           });
         };
 

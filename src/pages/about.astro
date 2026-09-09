@@ -1,19 +1,14 @@
 ---
-import Layout from '../layouts/BlogPost.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import Layout from "../layouts/BlogPost.astro";
+import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 ---
 
-<Layout
-	title="关于"
-	description={SITE_DESCRIPTION}
->
-	<p>
-		你好，欢迎来到 <strong>{SITE_TITLE}</strong>。这里是我的个人网站，记录生活中的风景、骑行与徒步见闻，
-		以及技术学习过程中的一些笔记和思考。
-	</p>
+<Layout title="关于" description={SITE_DESCRIPTION}>
+  <p>
+    你好，欢迎来到 <strong>{SITE_TITLE}</strong>
+    。这里是我的个人网站，记录生活中的风景、骑行与徒步见闻， 以及技术学习过程中的一些笔记和思考。
+  </p>
 
-	<h2>关于本站</h2>
-	<p>
-		本站由 Astro 构建，部署于 Cloudflare Workers。
-	</p>
+  <h2>关于本站</h2>
+  <p>本站由 Astro 构建，部署于 Cloudflare Workers。</p>
 </Layout>

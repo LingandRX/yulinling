@@ -5,7 +5,9 @@ import { SITE_TITLE, withBase } from "../consts";
 
 <header>
   <nav>
-    <h2><HeaderLink href={withBase("/")}>{SITE_TITLE}</HeaderLink></h2>
+    <h2>
+      <HeaderLink href={withBase("/")}>{SITE_TITLE}</HeaderLink>
+    </h2>
     <div class="internal-links">
       <HeaderLink href={withBase("/")}>首页</HeaderLink>
       <HeaderLink href={withBase("/about")}>关于</HeaderLink>
