@@ -46,6 +46,24 @@ function imageLightbox() {
   });
 }
 
+// 构建时为站内图片包一层带 data-pswp-* 尺寸标注的 <a>，供 PhotoSwipe 灯箱使用
+function imageLightbox() {
+	return /** @type {import('astro').AstroIntegration} */ ({
+		name: "image-lightbox",
+		hooks: {
+			"astro:config:setup": ({ config, updateConfig }) => {
+				updateConfig({
+					markdown: {
+						rehypePlugins: [
+							[rehypeImgLightbox, { publicDir: fileURLToPath(config.publicDir), base: config.base }],
+						],
+					},
+				});
+			},
+		},
+	});
+}
+
 // https://astro.build/config
 export default defineConfig({
   site: "https://yulinling.site",

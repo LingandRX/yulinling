@@ -19,6 +19,9 @@
 html {
   scroll-behavior: smooth;
 }
+html {
+	scroll-behavior: smooth;
+}
 @font-face {
   font-family: "Atkinson";
   src: url("/fonts/atkinson-regular.woff") format("woff");
@@ -36,6 +39,10 @@ html {
 /* 去掉点击时浏览器默认的半透明遮罩（手机 tap highlight） */
 * {
   -webkit-tap-highlight-color: transparent;
+}
+/* 去掉点击时浏览器默认的半透明遮罩（手机 tap highlight） */
+* {
+	-webkit-tap-highlight-color: transparent;
 }
 body {
   font-family: "Atkinson", sans-serif;
