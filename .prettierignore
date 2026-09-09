@@ -1,0 +1,8 @@
+node_modules
+dist
+.astro
+.wrangler
+package-lock.json
+public
+.env*
+src/content/blog/**

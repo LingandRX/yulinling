@@ -29,8 +29,7 @@ const REPO = process.env.BLOG_REPO_DIR || path.resolve(__dirname, "../..");
 const BLOG_DIR = path.join(REPO, "src/content/blog");
 const UPLOADS_DIR = path.join(REPO, "public/uploads");
 const STATE_FILE = path.join(REPO, ".sync-state.json");
-const NOTION_PARENT =
-  process.env.NOTION_PARENT_ID || "3bc971f3-e8db-8056-b710-cd0646acbddf"; // 雨霖铃
+const NOTION_PARENT = process.env.NOTION_PARENT_ID || "3bc971f3-e8db-8056-b710-cd0646acbddf"; // 雨霖铃
 const MAX_DESC = 120;
 const DATE_RE = /_*\s*📅\s*发布于\s*([\d-]+)\s*_*/;
 const DATE_LINE_RE = /^[\s_]*📅.*(?:\n|$)/;
@@ -145,9 +144,7 @@ function escapeTablePipes(body) {
   return body
     .split("\n")
     .map((line) =>
-      line.startsWith("|")
-        ? line.replace(/`[^`]*`/g, (m) => m.replace(/\|/g, "\\|"))
-        : line,
+      line.startsWith("|") ? line.replace(/`[^`]*`/g, (m) => m.replace(/\|/g, "\\|")) : line,
     )
     .join("\n");
 }
@@ -161,10 +158,7 @@ function stripManualToc(body) {
   const re = /##\s*目录[ \t]*\r?\n[\s\S]*?\n---[ \t]*(?:\r?\n)?/;
   const m = re.exec(body);
   if (m && /\]\(#/.test(m[0])) {
-    return (
-      body.slice(0, m.index) +
-      body.slice(m.index + m[0].length).replace(/^\s*\n/, "")
-    );
+    return body.slice(0, m.index) + body.slice(m.index + m[0].length).replace(/^\s*\n/, "");
   }
   return body;
 }
@@ -174,11 +168,7 @@ async function downloadImage(url, alt) {
 
   // 使用 URL 去除 query 后的 hash，确保命名稳定且同图不重下、异图不冲突
   const cleanUrl = url.split("?")[0];
-  const urlHash = crypto
-    .createHash("md5")
-    .update(cleanUrl)
-    .digest("hex")
-    .slice(0, 8);
+  const urlHash = crypto.createHash("md5").update(cleanUrl).digest("hex").slice(0, 8);
 
   let ext = ".jpg";
   let baseName = (alt && alt.trim()) || "";
@@ -199,7 +189,10 @@ async function downloadImage(url, alt) {
   const fname = `${baseName}_${urlHash}${ext}`;
   const dest = path.join(UPLOADS_DIR, fname);
 
+  // 检查目标文件是否已存在
   if (fs.existsSync(dest)) return "/uploads/" + fname;
+
+  // 下载图片内容
   const res = await fetch(url, {
     headers: { "User-Agent": "Mozilla/5.0" },
     redirect: "follow",
@@ -209,10 +202,30 @@ async function downloadImage(url, alt) {
     return null;
   }
   const buf = Buffer.from(await res.arrayBuffer());
+
+  // 计算下载内容的MD5哈希，检查是否已存在相同内容的文件
+  const contentHash = crypto.createHash("md5").update(buf).digest("hex");
+
+  // 扫描现有文件，检查是否有相同内容的文件
+  const existingFiles = fs
+    .readdirSync(UPLOADS_DIR)
+    .filter((f) => f.endsWith(".jpg") || f.endsWith(".jpeg") || f.endsWith(".png"));
+
+  for (const existingFile of existingFiles) {
+    const existingPath = path.join(UPLOADS_DIR, existingFile);
+    const existingContent = fs.readFileSync(existingPath);
+    const existingHash = crypto.createHash("md5").update(existingContent).digest("hex");
+
+    if (existingHash === contentHash) {
+      // 找到相同内容的文件，返回该文件的路径
+      console.log(`  img: found duplicate content, using existing: ${existingFile}`);
+      return "/uploads/" + existingFile;
+    }
+  }
+
+  // 没有找到重复内容，保存新文件
   fs.writeFileSync(dest, buf);
-  console.log(
-    `  img: downloaded ${fname} (${Math.round(buf.length / 1024)}KB)`,
-  );
+  console.log(`  img: downloaded ${fname} (${Math.round(buf.length / 1024)}KB)`);
   return "/uploads/" + fname;
 }
 
@@ -266,6 +279,8 @@ function extractDescription(body) {
 function buildFrontmatter({
   title,
   description,
+  category,
+  categories,
   pubDate,
   updated,
   hero,
@@ -274,6 +289,7 @@ function buildFrontmatter({
   const data = {
     title,
     description: description || "",
+    categories: categories?.length ? categories : [category || "未分类"],
     pubDate: pubDate || "",
   };
   if (updated) data.updatedDate = updated;
@@ -312,10 +328,7 @@ async function main() {
     } else {
       let matched = null;
       for (const [fn, fm] of Object.entries(existing)) {
-        if (
-          !fm.notionId &&
-          String(fm.title || "").trim() === String(p.title).trim()
-        ) {
+        if (!fm.notionId && String(fm.title || "").trim() === String(p.title).trim()) {
           matched = fn;
           break;
         }
@@ -376,6 +389,9 @@ async function main() {
     const fmText = buildFrontmatter({
       title,
       description: desc,
+      categories: existing[fn]?.categories?.length
+        ? existing[fn].categories
+        : [existing[fn]?.category || "未分类"],
       pubDate,
       updated,
       hero,
@@ -435,9 +451,7 @@ async function main() {
   }
 
   if (NO_COMMIT) {
-    console.log(
-      `\n[--no-commit] 同步完成（共 ${writes.length} 篇），跳过 Git 提交与推送。`,
-    );
+    console.log(`\n[--no-commit] 同步完成（共 ${writes.length} 篇），跳过 Git 提交与推送。`);
     return;
   }
 
@@ -449,17 +463,12 @@ async function main() {
   if (fs.existsSync(UPLOADS_DIR)) {
     execSync("git add public/uploads/", { stdio: "inherit" });
   }
-  execSync(
-    `git commit -m "sync: update ${writes.length} post(s) from Notion"`,
-    {
-      stdio: "inherit",
-    },
-  );
+  execSync(`git commit -m "sync: update ${writes.length} post(s) from Notion"`, {
+    stdio: "inherit",
+  });
 
   if (NO_PUSH) {
-    console.log(
-      `\n[--no-push] 本地提交完成（共 ${writes.length} 篇），跳过 Git Push。`,
-    );
+    console.log(`\n[--no-push] 本地提交完成（共 ${writes.length} 篇），跳过 Git Push。`);
     return;
   }
 
@@ -467,10 +476,7 @@ async function main() {
     const out = execSync("git push origin HEAD", { encoding: "utf8" });
     console.log(`\npush: 0\n${out.slice(-500)}`);
   } catch (err) {
-    console.error(
-      "\n[warn] git push 失败，请稍后检查网络或远程分支并手动推送:",
-      err.message,
-    );
+    console.error("\n[warn] git push 失败，请稍后检查网络或远程分支并手动推送:", err.message);
   }
 
   console.log(`\nDone. Synced ${writes.length} file(s).`);
